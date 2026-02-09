@@ -39,19 +39,22 @@ class PySideServer(QMainWindow):
         self.apply_styles()
         self.setup_ui()
         self.setup_timer()
+        # Auto-start server
+        QTimer.singleShot(500, self.start_server)
 
     def apply_styles(self):
         self.setStyleSheet("""
             QMainWindow {
-                background-color: #f5f6fa;
+                background-color: #ffffff;
             }
             QWidget {
-                color: #2f3640;
-                font-family: 'Segoe UI', Arial, sans-serif;
+                color: #202124;
+                font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+                font-size: 14px;
             }
             QGroupBox {
                 font-weight: bold;
-                border: 1px solid #dcdde1;
+                border: 1px solid #dadce0;
                 border-radius: 8px;
                 margin-top: 12px;
                 padding-top: 12px;
@@ -61,52 +64,57 @@ class PySideServer(QMainWindow):
                 subcontrol-origin: margin;
                 left: 10px;
                 padding: 0 5px;
-                color: #3498db;
+                color: #5f6368;
             }
             QPushButton {
-                background-color: #3498db;
+                background-color: #1a73e8;
                 color: white;
                 border: none;
                 border-radius: 4px;
                 padding: 10px 20px;
-                font-weight: bold;
+                font-weight: 500;
                 font-size: 14px;
             }
             QPushButton:hover {
-                background-color: #2980b9;
+                background-color: #174ea6;
             }
             #danger_btn {
-                background-color: #e84118;
+                background-color: white;
+                color: #d93025;
+                border: 1px solid #d93025;
             }
             #danger_btn:hover {
-                background-color: #c23616;
+                background-color: #fce8e6;
             }
             #success_btn {
-                background-color: #4cd137;
+                background-color: #1e8e3e;
+                color: white;
+                border: none;
             }
             #success_btn:hover {
-                background-color: #44bd32;
+                background-color: #137333;
             }
             QTextEdit {
-                background-color: #ffffff;
-                border: 1px solid #dcdde1;
+                background-color: #f8f9fa;
+                border: 1px solid #dadce0;
                 border-radius: 4px;
-                color: #2f3640;
+                color: #3c4043;
                 font-family: 'Consolas', monospace;
                 font-size: 12px;
                 padding: 10px;
             }
             QLabel#header_title {
-                color: #2f3640;
-                font-size: 32px;
-                font-weight: bold;
+                color: #5f6368;
+                font-size: 24px;
+                font-family: 'Product Sans', 'Segoe UI', sans-serif;
+                font-weight: normal;
             }
             QLabel#status_panel {
                 background-color: #ffffff;
-                padding: 15px;
+                padding: 10px 15px;
                 border-radius: 8px;
-                font-size: 18px;
-                border: 1px solid #dcdde1;
+                font-size: 16px;
+                border: 1px solid #dadce0;
             }
         """)
 
@@ -120,41 +128,51 @@ class PySideServer(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(40, 40, 40, 40)
-        layout.setSpacing(25)
+        layout.setContentsMargins(30, 30, 30, 30)
+        layout.setSpacing(20)
         
         # Header
         header = QHBoxLayout()
+        
+        logo_icon = QLabel("📐") # Placeholder
+        logo_icon.setStyleSheet("font-size: 24px;")
+        header.addWidget(logo_icon)
+        
         title = QLabel("Mini Drive Server")
         title.setObjectName("header_title")
         header.addWidget(title)
+        
         header.addStretch()
         
         self.time_label = QLabel()
-        self.time_label.setStyleSheet("color: #666; font-size: 14px;")
+        self.time_label.setStyleSheet("color: #5f6368; font-size: 14px;")
         header.addWidget(self.time_label)
         layout.addLayout(header)
         
         # Status & Control Area
-        ctrl_panel = QHBoxLayout()
+        ctrl_panel = QFrame()
+        ctrl_panel.setStyleSheet("background-color: #f8f9fa; border-radius: 8px; border: 1px solid #dadce0;")
+        ctrl_layout = QHBoxLayout(ctrl_panel)
+        ctrl_layout.setContentsMargins(20, 20, 20, 20)
         
         self.status_label = QLabel("● Server Stopped")
         self.status_label.setObjectName("status_panel")
-        self.status_label.setStyleSheet("color: #e74c3c;")
+        self.status_label.setStyleSheet("color: #ea4335; border: none; font-weight: bold;")
         
         self.client_label = QLabel("Active Clients: 0")
-        self.client_label.setStyleSheet("font-size: 16px; color: #888;")
+        self.client_label.setStyleSheet("font-size: 16px; color: #5f6368; font-weight: 500;")
         
         self.start_btn = QPushButton("Start Server")
         self.start_btn.setObjectName("success_btn")
         self.start_btn.setFixedWidth(200)
+        self.start_btn.setCursor(Qt.PointingHandCursor)
         self.start_btn.clicked.connect(self.toggle_server)
         
-        ctrl_panel.addWidget(self.status_label)
-        ctrl_panel.addStretch()
-        ctrl_panel.addWidget(self.client_label)
-        ctrl_panel.addWidget(self.start_btn)
-        layout.addLayout(ctrl_panel)
+        ctrl_layout.addWidget(self.status_label)
+        ctrl_layout.addStretch()
+        ctrl_layout.addWidget(self.client_label)
+        ctrl_layout.addWidget(self.start_btn)
+        layout.addWidget(ctrl_panel)
         
         # Storage Info
         info_group = QGroupBox("Storage Information")
